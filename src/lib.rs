@@ -45,6 +45,7 @@ extern crate hibitset;
 extern crate shrev;
 extern crate specs;
 
+use specs::shred;
 use std::collections::{HashMap, HashSet};
 use std::marker::PhantomData;
 
