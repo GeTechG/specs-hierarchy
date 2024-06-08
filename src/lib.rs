@@ -52,7 +52,7 @@ use std::marker::PhantomData;
 use hibitset::BitSetLike;
 use shrev::EventChannel;
 use specs::prelude::{
-    BitSet, Component, ComponentEvent, Entities, Entity, Join, ReadStorage, ReaderId, ResourceId,
+    BitSet, Component, ComponentEvent, Entities, Entity, Join, ReadStorage, ReaderId,
     System, SystemData, Tracked, World, WriteExpect, WriteStorage,
 };
 use specs::world::Index;
@@ -239,7 +239,7 @@ impl<P> Hierarchy<P> {
                     || self
                         .current_parent
                         .get(&entity)
-                        .map(|parent_entity| self.scratch_set.contains(&parent_entity))
+                        .map(|parent_entity| self.scratch_set.contains(parent_entity))
                         .unwrap_or(false);
                 if remove {
                     if i < min_index {
@@ -290,7 +290,7 @@ impl<P> Hierarchy<P> {
                         .min()
                         .cloned()
                 })
-                .unwrap_or_else(|| self.sorted.len());
+                .unwrap_or(self.sorted.len());
             self.entities.insert(entity.id(), insert_index);
             if insert_index >= self.sorted.len() {
                 self.sorted.push(entity);
@@ -305,7 +305,7 @@ impl<P> Hierarchy<P> {
                 let children = self
                     .children
                     .entry(parent_entity)
-                    .or_insert_with(Vec::default);
+                    .or_default();
                 children.push(entity);
             }
 
@@ -336,7 +336,7 @@ impl<P> Hierarchy<P> {
             // insert in new parents children
             self.children
                 .entry(parent_entity)
-                .or_insert_with(Vec::default)
+                .or_default()
                 .push(entity);
 
             // move entity in sorted if needed
@@ -379,7 +379,7 @@ impl<P> Hierarchy<P> {
                     || self
                         .current_parent
                         .get(&entity)
-                        .map(|parent_entity| self.scratch_set.contains(&parent_entity))
+                        .map(|parent_entity| self.scratch_set.contains(parent_entity))
                         .unwrap_or(false);
                 if notify {
                     self.scratch_set.insert(entity);
@@ -522,11 +522,11 @@ where
     P: Component + Parent + Send + Sync + 'static,
     P::Storage: Tracked,
 {
-    pub fn new(mut world: &mut World) -> Self {
-        <Self as System<'_>>::SystemData::setup(&mut world);
+    pub fn new(world: &mut World) -> Self {
+        <Self as System<'_>>::SystemData::setup(world);
         if !world.has_value::<Hierarchy<P>>() {
             let hierarchy = {
-                let mut storage: WriteStorage<P> = SystemData::fetch(&world);
+                let mut storage: WriteStorage<P> = SystemData::fetch(world);
                 Hierarchy::<P>::new(storage.register_reader())
             };
             world.insert(hierarchy);
