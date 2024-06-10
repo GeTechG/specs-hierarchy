@@ -52,8 +52,8 @@ use std::marker::PhantomData;
 use hibitset::BitSetLike;
 use shrev::EventChannel;
 use specs::prelude::{
-    BitSet, Component, ComponentEvent, Entities, Entity, Join, ReadStorage, ReaderId,
-    System, SystemData, Tracked, World, WriteExpect, WriteStorage,
+    BitSet, Component, ComponentEvent, Entities, Entity, Join, ReadStorage, ReaderId, System,
+    SystemData, Tracked, World, WriteExpect, WriteStorage,
 };
 use specs::world::Index;
 
@@ -302,10 +302,7 @@ impl<P> Hierarchy<P> {
             }
 
             {
-                let children = self
-                    .children
-                    .entry(parent_entity)
-                    .or_default();
+                let children = self.children.entry(parent_entity).or_default();
                 children.push(entity);
             }
 
@@ -334,10 +331,7 @@ impl<P> Hierarchy<P> {
             }
 
             // insert in new parents children
-            self.children
-                .entry(parent_entity)
-                .or_default()
-                .push(entity);
+            self.children.entry(parent_entity).or_default().push(entity);
 
             // move entity in sorted if needed
             let entity_index = self.entities.get(&entity.id()).cloned().unwrap();
